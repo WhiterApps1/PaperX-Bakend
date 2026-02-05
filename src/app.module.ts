@@ -5,6 +5,7 @@ import { ExtractJwt } from 'passport-jwt';
 import { FirebaseAdminModule } from '@alpha018/nestjs-firebase-auth';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import 'dotenv/config';
+import { FirebaseAuthModule } from './firebase_auth/firebase_auth.module';
 
 @Module({
   imports: [
@@ -21,22 +22,36 @@ import 'dotenv/config';
     //   logging: true, // Useful for debugging
     // }),
 
-    // Firebase Authentication setup
-    ConfigModule.forRoot({ isGlobal: true }),
+    // ---------------- CONFIG ----------------
+
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    // ---------------- FIREBASE AUTH ----------------
+
     FirebaseAdminModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: () => ({
+
+      useFactory: (configService: ConfigService) => ({
         auth: {
           config: {
-            extractor: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT from the header
-            checkRevoked: true, // Optionally check if the token is revoked
+            extractor: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            checkRevoked: true,
             ignoreEmailVerification: true,
-            validateRole: true, // Enable role validation if needed
+            validateRole: true,
+
+            // useLocalRoles: false,
+            // rolesClaimKey: 'user_roles',
           },
         },
       }),
+
       inject: [ConfigService],
     }),
+
+    // ---------------- MODULES ----------------
+    FirebaseAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

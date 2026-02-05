@@ -4,11 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { json, urlencoded } from 'express';
-// import { QueryFailedFilter } from './common/filters/query-failed.filter';
-// import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-// import { EntityNotFoundFilter } from './common/filters/entity-not-found.filter';
-// import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ValidationPipe } from '@nestjs/common';
+import * as admin from 'firebase-admin';
 import 'dotenv/config';
 
 interface PackageJson {
@@ -16,19 +13,30 @@ interface PackageJson {
 }
 
 async function bootstrap() {
-  console.log('ENV USER:', process.env.DB_USER);
-  console.log('ENV PASS:', process.env.DB_PASSWORD);
+  // ---------------- FIREBASE INIT ----------------
+
+  // if (!admin.apps.length) {
+  //   admin.initializeApp({
+  //     credential: admin.credential.cert({
+  //       projectId: process.env.FIREBASE_PROJECT_ID,
+  //       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  //       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  //     }),
+  //     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  //   });
+
+  //   console.log(
+  //     'Firebase initialized for project:',
+  //     admin.app().options.projectId,
+  //   );
+  // }
+
+  // ---------------- NEST APP ----------------
 
   const app = await NestFactory.create(AppModule);
+
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ limit: '50mb', extended: true }));
-
-  // app.useGlobalFilters(
-  //   new EntityNotFoundFilter(), // Catches TypeORM EntityNotFoundError -> 404
-  //   new QueryFailedFilter(), // Catches TypeORM QueryFailedError (e.g., 23505 unique) -> 409
-  //   new HttpExceptionFilter(), // Catches all standard NestJS HttpExceptions (including ValidationPipe's BadRequestException));//Exception filter registred
-  //   new AllExceptionsFilter(), // 4. CATCH-ALL: Catches everything else (uncaught runtime errors) -> 500
-  // );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -37,6 +45,9 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  // ---------------- SWAGGER ----------------
+
   const config = new DocumentBuilder()
     .setTitle(getProjectName())
     .setDescription('PaperX Backend API Documentation.')
@@ -51,7 +62,6 @@ async function bootstrap() {
       },
       'bearerAuth',
     )
-
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
@@ -64,20 +74,27 @@ async function bootstrap() {
     },
   });
 
-  // Enable CORS
+  // ---------------- CORS ----------------
+
   app.enableCors({
-    // origin: ['http://0.0.0.0','*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  await app.listen(process.env.PORT ?? 3001);
+  // ---------------- START ----------------
+
+  await app.listen(process.env.PORT ?? 3000);
+
+  console.log(`Server running on port ${process.env.PORT ?? 3000}`);
 }
+
 void bootstrap().catch((err) => {
   console.error('Application bootstrap failed', err);
   process.exit(1);
 });
+
+// ---------------- HELPERS ----------------
 
 function getProjectName(): string {
   const packageJsonPath = join(process.cwd(), 'package.json');
