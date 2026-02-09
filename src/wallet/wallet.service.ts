@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable, BadRequestException, ConflictException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import { Wallet, CreditTransaction } from "./entities/wallet.entity";
@@ -54,4 +54,20 @@ export class WalletService {
     });
     // Note: If any error occurs inside this block, TypeORM automatically rolls back.
   }
+
+  async createWallet(userId: string, initialBalance: number) {
+  // Check if wallet exists to prevent duplicate account creation
+  const existingWallet = await this.walletRepo.findOne({ where: { userId } });
+  
+  if (existingWallet) {
+    throw new ConflictException('A wallet already exists for this user');
+  }
+
+  const newWallet = this.walletRepo.create({
+    userId,
+    balance: initialBalance,
+  });
+
+  return await this.walletRepo.save(newWallet);
+}
 }

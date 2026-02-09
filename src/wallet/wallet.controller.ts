@@ -1,32 +1,29 @@
-import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiProperty, ApiBody } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
+import { CreateWalletDto, CreditTransferDto } from './dto/create-wallet.dto'
 
-// DTO for documentation and validation
-class CreditTransferDto {
-  @ApiProperty({ 
-    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851', 
-    description: 'The UUID of the parent user' 
-  })
-  parentId: string;
 
-  @ApiProperty({ 
-    example: '827c1f8d-7132-4d10-8b1b-53531b4a0c22', 
-    description: 'The UUID of the child user' 
-  })
-  childId: string;
-
-  @ApiProperty({ 
-    example: 50.00, 
-    description: 'The amount of credits to move (must be positive)' 
-  })
-  amount: number;
-}
 
 @ApiTags('Internal Credit Management')
 @Controller('internal/credits')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
+
+  @Post('initialize-parent')
+  @ApiOperation({ 
+    summary: 'Initialize Parent Wallet', 
+    description: 'Creates a new wallet for a parent user with a specific starting balance.' 
+  })
+  @ApiResponse({ status: 201, description: 'Wallet created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid initial balance.' })
+  @ApiResponse({ status: 409, description: 'Wallet already exists for this user.' })
+  async initializeParent(@Body() dto: CreateWalletDto) {
+    if (dto.initialBalance < 0) {
+      throw new BadRequestException('Initial balance cannot be negative');
+    }
+    return this.walletService.createWallet(dto.userId, dto.initialBalance);
+  }
 
   @Post('push')
   @ApiOperation({ 
@@ -51,4 +48,5 @@ export class WalletController {
     // Note: Sender is Child, Receiver is Parent
     return this.walletService.transferCredits(dto.childId, dto.parentId, dto.amount, 'RECLAIM');
   }
+  
 }
