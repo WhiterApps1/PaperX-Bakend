@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from './redis/redis.module';
 import { FirebaseAuthModule } from './firebase_auth/firebase_auth.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
@@ -56,6 +57,8 @@ import { FirebaseAuthModule } from './firebase_auth/firebase_auth.module';
     /* ---------------- MODULES ---------------- */
 
     FirebaseAuthModule,
+
+    WalletModule,
   ],
 
   controllers: [AppController],
