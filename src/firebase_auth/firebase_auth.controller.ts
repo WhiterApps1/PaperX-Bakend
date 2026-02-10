@@ -8,7 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SetRolesDto } from './dto/set-roles.dto';
-import { CreateFirebaseUserDto } from './dto/create-firebase-user.dto';
+import { FirebaseUserDto } from './dto/create-firebase-user.dto';
 
 @ApiTags('Firebase-Auth')
 @ApiBearerAuth('bearerAuth')
@@ -20,7 +20,7 @@ export class FirebaseAuthController {
   @ApiOperation({
     summary: 'Create a Firebase user using email and password',
   })
-  @ApiBody({ type: CreateFirebaseUserDto })
+  @ApiBody({ type: FirebaseUserDto })
   @ApiResponse({
     status: 201,
     description: 'Firebase user created successfully',
@@ -29,11 +29,10 @@ export class FirebaseAuthController {
     status: 400,
     description: 'Invalid email, password, or Firebase error',
   })
-  async createUser(@Body() dto: CreateFirebaseUserDto) {
+  async createUser(@Body() dto: FirebaseUserDto) {
     return this.firebaseAuthService.createUser(dto.email, dto.password);
   }
 
-  // --- MULTI-ROLE Endpoint ---
   @Post('/set-roles/:uid')
   @ApiOperation({
     summary: 'Assigns multiple roles to a single Firebase user ID',
@@ -49,5 +48,13 @@ export class FirebaseAuthController {
   @Post('/set-roles/:uid')
   async setMultipleRoles(@Param('uid') uid: string, @Body() body: SetRolesDto) {
     return this.firebaseAuthService.setRoles(uid, body.roles);
+  }
+
+  @Post('login')
+  login(@Body() dto: FirebaseUserDto) {
+    return this.firebaseAuthService.loginWithEmailPassword(
+      dto.email,
+      dto.password,
+    );
   }
 }

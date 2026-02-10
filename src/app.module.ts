@@ -8,6 +8,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from './redis/redis.module';
 import { FirebaseAuthModule } from './firebase_auth/firebase_auth.module';
 import { WalletModule } from './wallet/wallet.module';
+import { UserModule } from './user/user.module';
+import { PermissionModule } from './permission/permission.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -57,8 +60,10 @@ import { WalletModule } from './wallet/wallet.module';
     /* ---------------- MODULES ---------------- */
 
     FirebaseAuthModule,
-
     WalletModule,
+    UserModule,
+    PermissionModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

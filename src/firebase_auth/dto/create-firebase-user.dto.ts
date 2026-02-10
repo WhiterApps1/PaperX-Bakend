@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export class CreateFirebaseUserDto {
+export class FirebaseUserDto {
   @ApiProperty({
     example: 'john.doe@example.com',
     description: 'Email for Firebase authentication',
