@@ -12,11 +12,13 @@ import { WalletModule } from './wallet/wallet.module';
 @Module({
   imports: [
     /* ---------------- CONFIG ---------------- */
+
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
     /* ---------------- DATABASE ---------------- */
+
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -24,12 +26,10 @@ import { WalletModule } from './wallet/wallet.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-
       autoLoadEntities: true,
 
       // Only allow auto-sync in development
       synchronize: process.env.NODE_ENV !== 'production',
-
       logging: process.env.NODE_ENV !== 'production',
     }),
 
@@ -60,9 +60,7 @@ import { WalletModule } from './wallet/wallet.module';
 
     WalletModule,
   ],
-
   controllers: [AppController],
-
   providers: [AppService],
 })
 export class AppModule {}
