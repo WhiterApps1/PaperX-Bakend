@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Profile } from 'src/profile/entities/profile.entity';
 
 @Entity('users')
@@ -36,9 +36,13 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  @ApiProperty({ description: 'Hashed password' })
-  @Column()
-  passwordHash: string;
+  @ApiPropertyOptional({ description: 'Hashed password' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  passwordHash: string | null;
 
   @ManyToOne(() => Profile, (profile) => profile.user, {
     nullable: true,

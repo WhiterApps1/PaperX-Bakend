@@ -4,6 +4,7 @@ import { getAuth, Auth } from 'firebase-admin/auth';
 import { FirebaseProvider } from '@alpha018/nestjs-firebase-auth';
 import { Roles } from './roles.enum';
 import axios from 'axios';
+import 'dotenv/config';
 
 @Injectable()
 export class FirebaseAuthService {

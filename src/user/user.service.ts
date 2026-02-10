@@ -10,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { FirebaseAuthService } from 'src/firebase_auth/firebase_auth.service';
 
 @Injectable()
 export class UserService {
@@ -19,29 +20,46 @@ export class UserService {
 
     @InjectRepository(Profile)
     private readonly profileRepo: Repository<Profile>,
+
+    private readonly firebaseAuthService: FirebaseAuthService,
   ) {}
 
   /* ------------------------------- Create ------------------------------- */
 
-  async create(dto: CreateUserDto): Promise<User> {
-    const exists = await this.userRepo.findOne({
-      where: { email: dto.email },
-    });
-
-    if (exists) {
-      throw new BadRequestException('Email already registered');
-    }
-
+  async create(dto: CreateUserDto) {
+    // Validate Profile
     const profile = await this.profileRepo.findOne({
       where: { id: dto.profileId },
     });
 
     if (!profile) {
-      throw new BadRequestException('Invalid profile ID');
+      throw new BadRequestException('Invalid profileId');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    // Check Duplicate
+    const existingUser = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
 
+    if (existingUser) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    let passwordHash: string | null = null;
+    let firebaseUser;
+
+    // Create Firebase User
+    if (dto.password) {
+      firebaseUser = await this.firebaseAuthService.createUser(
+        dto.email,
+        dto.password,
+      );
+
+      // Hash Password
+      passwordHash = await bcrypt.hash(dto.password, 10);
+    }
+
+    // Create DB User
     const user = this.userRepo.create({
       email: dto.email,
       firstName: dto.firstName,
@@ -50,7 +68,30 @@ export class UserService {
       profile,
     });
 
-    return this.userRepo.save(user);
+    const newUser = await this.userRepo.save(user);
+
+    // Assign Firebase Roles
+    if (firebaseUser && newUser.profile?.role?.length) {
+      await this.firebaseAuthService.setRoles(
+        firebaseUser.uid,
+        newUser.profile.role,
+      );
+    }
+
+    // Send Email
+    // const emailHtml = newUserWelcomeEmail({
+    //   user: newUser,
+    //   profile: newUser.profile,
+    //   password: dto.password, // only for welcome email
+    // });
+
+    // await this.emailService.sendEmail(
+    //   newUser.email,
+    //   `Welcome to ShineeTrip, ${newUser.firstName}!`,
+    //   emailHtml,
+    // );
+
+    return newUser;
   }
 
   /* -------------------------------- Read -------------------------------- */

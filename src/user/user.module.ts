@@ -4,9 +4,10 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User } from './entities/user.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { FirebaseAuthModule } from 'src/firebase_auth/firebase_auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Profile])],
+  imports: [TypeOrmModule.forFeature([User, Profile]), FirebaseAuthModule],
   providers: [UserService],
   controllers: [UserController],
   exports: [UserService],

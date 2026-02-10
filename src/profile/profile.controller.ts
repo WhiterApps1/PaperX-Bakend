@@ -12,6 +12,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
@@ -27,8 +28,12 @@ export class ProfileController {
   /* ------------------------------- Create ------------------------------- */
 
   @Post()
+  @ApiOperation({
+    summary: 'Create profile',
+    description: 'Create a new profile with the provided details.',
+  })
   @ApiCreatedResponse({ type: ProfileResponseDto })
-  @ApiBadRequestResponse()
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   create(@Body() dto: CreateProfileDto) {
     return this.profileService.create(dto);
   }
@@ -36,14 +41,22 @@ export class ProfileController {
   /* -------------------------------- Read -------------------------------- */
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all profiles',
+    description: 'Retrieve a list of all available profiles.',
+  })
   @ApiOkResponse({ type: [ProfileResponseDto] })
   findAll() {
     return this.profileService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get profile by ID',
+    description: 'Retrieve a single profile using its unique ID.',
+  })
   @ApiOkResponse({ type: ProfileResponseDto })
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Profile not found' })
   findOne(@Param('id') id: number) {
     return this.profileService.findOne(Number(id));
   }
@@ -51,8 +64,12 @@ export class ProfileController {
   /* ------------------------------- Update ------------------------------- */
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update profile',
+    description: 'Update profile information by profile ID.',
+  })
   @ApiOkResponse({ type: ProfileResponseDto })
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Profile not found' })
   update(@Param('id') id: number, @Body() dto: UpdateProfileDto) {
     return this.profileService.update(Number(id), dto);
   }
@@ -60,9 +77,13 @@ export class ProfileController {
   /* ------------------------------- Delete ------------------------------- */
 
   @Delete(':id')
-  @ApiOkResponse({ description: 'Profile deleted' })
-  @ApiBadRequestResponse()
-  @ApiNotFoundResponse()
+  @ApiOperation({
+    summary: 'Delete profile',
+    description: 'Permanently delete a profile by ID.',
+  })
+  @ApiOkResponse({ description: 'Profile deleted successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid profile ID' })
+  @ApiNotFoundResponse({ description: 'Profile not found' })
   remove(@Param('id') id: number) {
     return this.profileService.remove(Number(id));
   }

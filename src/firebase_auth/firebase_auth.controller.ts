@@ -51,6 +51,24 @@ export class FirebaseAuthController {
   }
 
   @Post('login')
+  @ApiOperation({
+    summary: 'Login with email and password',
+    description:
+      'Authenticate a Firebase user using email and password and return an ID token.',
+  })
+  @ApiBody({ type: FirebaseUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful. Firebase ID token returned.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid email or password.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body.',
+  })
   login(@Body() dto: FirebaseUserDto) {
     return this.firebaseAuthService.loginWithEmailPassword(
       dto.email,
