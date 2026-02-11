@@ -11,6 +11,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
 import { ProfileModule } from './profile/profile.module';
+import { TradingModule } from './trading/trading.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { ProfileModule } from './profile/profile.module';
     UserModule,
     PermissionModule,
     ProfileModule,
+    TradingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
