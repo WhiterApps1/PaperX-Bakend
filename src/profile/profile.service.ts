@@ -52,7 +52,7 @@ export class ProfileService {
     });
   }
 
-  async findOne(id: number): Promise<Profile> {
+  async findOne(id: string): Promise<Profile> {
     const profile = await this.profileRepo.findOne({
       where: { id },
       relations: ['permissions', 'user'],
@@ -67,7 +67,7 @@ export class ProfileService {
 
   /* ------------------------------- Update ------------------------------- */
 
-  async update(id: number, dto: UpdateProfileDto): Promise<Profile> {
+  async update(id: string, dto: UpdateProfileDto): Promise<Profile> {
     const profile = await this.findOne(id);
 
     if (dto.permissionIds) {
@@ -95,7 +95,7 @@ export class ProfileService {
 
   /* ------------------------------- Delete ------------------------------- */
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const profile = await this.findOne(id);
 
     if (profile.user?.length > 0) {

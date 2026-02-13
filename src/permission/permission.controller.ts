@@ -15,10 +15,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { PermissionResponseDto } from './dto/permission-response.dto';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { Permission } from './entities/permission.entity';
 
 @ApiTags('Permissions')
 @Controller('permissions')
@@ -32,7 +32,7 @@ export class PermissionController {
     summary: 'Create permission',
     description: 'Create a new permission with the provided details.',
   })
-  @ApiCreatedResponse({ type: PermissionResponseDto })
+  @ApiCreatedResponse({ type: Permission })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   create(@Body() dto: CreatePermissionDto) {
     return this.permissionService.create(dto);
@@ -45,7 +45,7 @@ export class PermissionController {
     summary: 'Get all permissions',
     description: 'Retrieve a list of all available permissions.',
   })
-  @ApiOkResponse({ type: [PermissionResponseDto] })
+  @ApiOkResponse({ type: [Permission] })
   findAll() {
     return this.permissionService.findAll();
   }
@@ -55,7 +55,7 @@ export class PermissionController {
     summary: 'Get permission by ID',
     description: 'Retrieve a single permission using its unique ID.',
   })
-  @ApiOkResponse({ type: PermissionResponseDto })
+  @ApiOkResponse({ type: Permission })
   @ApiNotFoundResponse({ description: 'Permission not found' })
   findOne(@Param('id') id: string) {
     return this.permissionService.findOne(id);
@@ -68,7 +68,7 @@ export class PermissionController {
     summary: 'Update permission',
     description: 'Update permission information by permission ID.',
   })
-  @ApiOkResponse({ type: PermissionResponseDto })
+  @ApiOkResponse({ type: Permission })
   @ApiNotFoundResponse({ description: 'Permission not found' })
   update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
     return this.permissionService.update(id, dto);

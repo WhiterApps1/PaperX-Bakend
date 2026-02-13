@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Roles } from 'src/firebase_auth/roles.enum';
 import { Permission } from 'src/permission/entities/permission.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -35,14 +35,14 @@ export class Profile {
   })
   role: Roles[];
 
-  @ManyToMany(() => Permission, (permission) => permission.profiles, {
-    eager: true,
-  })
+  @ApiHideProperty()
+  @ManyToMany(() => Permission, (permission) => permission.profiles)
   @JoinTable({
     name: 'role_permissions',
   })
   permissions: Permission[];
 
+  @ApiHideProperty()
   @OneToMany(() => User, (employee) => employee.profile)
   user: User[];
 }

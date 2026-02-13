@@ -1,5 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 
 @Entity()
 export class Wallet {
@@ -10,12 +18,13 @@ export class Wallet {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: 'USR-123456',
-    description: 'User identifier who owns this wallet',
+  @ApiHideProperty()
+  @OneToOne(() => User, (user) => user.wallet, {
+    onDelete: 'CASCADE',
   })
-  @Column()
-  userId: string;
+  @JoinColumn({ name: 'user_id' })
+  @Index()
+  user: User;
 
   @ApiProperty({
     example: '10000.00',

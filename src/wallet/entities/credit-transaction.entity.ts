@@ -1,8 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -20,19 +23,19 @@ export class CreditTransaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: 'USR-123456',
-    description: 'User ID of the sender',
+  @ApiHideProperty()
+  @ManyToOne(() => User, {
+    onDelete: 'RESTRICT',
   })
-  @Column()
-  senderId: string;
+  @JoinColumn({ name: 'sender_id' })
+  sender: User;
 
-  @ApiProperty({
-    example: 'USR-654321',
-    description: 'User ID of the receiver',
+  @ApiHideProperty()
+  @ManyToOne(() => User, {
+    onDelete: 'RESTRICT',
   })
-  @Column()
-  receiverId: string;
+  @JoinColumn({ name: 'receiver_id' })
+  receiver: User;
 
   @ApiProperty({
     example: '500.00',

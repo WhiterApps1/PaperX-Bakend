@@ -5,7 +5,7 @@ import {
   ManyToMany,
   Unique,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profile/entities/profile.entity';
 
 export enum PermissionAction {
@@ -71,10 +71,7 @@ export class Permission {
   })
   key: string;
 
-  @ApiProperty({
-    description: 'Profiles (roles) that are associated with this permission.',
-    required: false,
-  })
+  @ApiHideProperty()
   @ManyToMany(() => Profile, (profile) => profile.permissions)
   profiles: Profile[];
 }

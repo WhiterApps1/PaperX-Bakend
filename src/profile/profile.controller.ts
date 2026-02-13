@@ -18,7 +18,7 @@ import {
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ProfileResponseDto } from './dto/profile-response.dto';
+import { Profile } from './entities/profile.entity';
 
 @ApiTags('Profiles')
 @Controller('profiles')
@@ -32,7 +32,7 @@ export class ProfileController {
     summary: 'Create profile',
     description: 'Create a new profile with the provided details.',
   })
-  @ApiCreatedResponse({ type: ProfileResponseDto })
+  @ApiCreatedResponse({ type: Profile })
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   create(@Body() dto: CreateProfileDto) {
     return this.profileService.create(dto);
@@ -45,7 +45,7 @@ export class ProfileController {
     summary: 'Get all profiles',
     description: 'Retrieve a list of all available profiles.',
   })
-  @ApiOkResponse({ type: [ProfileResponseDto] })
+  @ApiOkResponse({ type: [Profile] })
   findAll() {
     return this.profileService.findAll();
   }
@@ -55,10 +55,10 @@ export class ProfileController {
     summary: 'Get profile by ID',
     description: 'Retrieve a single profile using its unique ID.',
   })
-  @ApiOkResponse({ type: ProfileResponseDto })
+  @ApiOkResponse({ type: Profile })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  findOne(@Param('id') id: number) {
-    return this.profileService.findOne(Number(id));
+  findOne(@Param('id') id: string) {
+    return this.profileService.findOne(id);
   }
 
   /* ------------------------------- Update ------------------------------- */
@@ -68,10 +68,10 @@ export class ProfileController {
     summary: 'Update profile',
     description: 'Update profile information by profile ID.',
   })
-  @ApiOkResponse({ type: ProfileResponseDto })
+  @ApiOkResponse({ type: Profile })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  update(@Param('id') id: number, @Body() dto: UpdateProfileDto) {
-    return this.profileService.update(Number(id), dto);
+  update(@Param('id') id: string, @Body() dto: UpdateProfileDto) {
+    return this.profileService.update(id, dto);
   }
 
   /* ------------------------------- Delete ------------------------------- */
@@ -84,7 +84,7 @@ export class ProfileController {
   @ApiOkResponse({ description: 'Profile deleted successfully' })
   @ApiBadRequestResponse({ description: 'Invalid profile ID' })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  remove(@Param('id') id: number) {
-    return this.profileService.remove(Number(id));
+  remove(@Param('id') id: string) {
+    return this.profileService.remove(id);
   }
 }

@@ -18,6 +18,24 @@ export class WalletService {
     @InjectRepository(Wallet) private walletRepo: Repository<Wallet>,
   ) {}
 
+  async createWallet(userId: string, initialBalance: number) {
+    // Check if wallet exists to prevent duplicate account creation
+    const existingWallet = await this.walletRepo.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (existingWallet) {
+      throw new ConflictException('A wallet already exists for this user');
+    }
+
+    const newWallet = this.walletRepo.create({
+      user: { id: userId },
+      balance: initialBalance,
+    });
+
+    return await this.walletRepo.save(newWallet);
+  }
+
   async transferCredits(
     senderId: string,
     receiverId: string,
@@ -29,7 +47,7 @@ export class WalletService {
     return await this.dataSource.transaction(async (manager) => {
       // 1. Lock the sender's wallet to prevent concurrent over-spending
       const senderWallet = await manager.findOne(Wallet, {
-        where: { userId: senderId },
+        where: { user: { id: senderId } },
         lock: { mode: 'pessimistic_write' },
       });
 
@@ -39,7 +57,7 @@ export class WalletService {
 
       // 2. Find or create receiver wallet
       const receiverWallet = await manager.findOne(Wallet, {
-        where: { userId: receiverId },
+        where: { user: { id: receiverId } },
         lock: { mode: 'pessimistic_write' },
       });
 
@@ -60,22 +78,5 @@ export class WalletService {
 
       return await manager.save(log);
     });
-    // Note: If any error occurs inside this block, TypeORM automatically rolls back.
-  }
-
-  async createWallet(userId: string, initialBalance: number) {
-    // Check if wallet exists to prevent duplicate account creation
-    const existingWallet = await this.walletRepo.findOne({ where: { userId } });
-
-    if (existingWallet) {
-      throw new ConflictException('A wallet already exists for this user');
-    }
-
-    const newWallet = this.walletRepo.create({
-      userId,
-      balance: initialBalance,
-    });
-
-    return await this.walletRepo.save(newWallet);
   }
 }

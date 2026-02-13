@@ -87,7 +87,7 @@ export class UserService {
 
     // await this.emailService.sendEmail(
     //   newUser.email,
-    //   `Welcome to ShineeTrip, ${newUser.firstName}!`,
+    //   `Welcome to PaperX, ${newUser.firstName}!`,
     //   emailHtml,
     // );
 
@@ -180,5 +180,87 @@ export class UserService {
     user.isActive = status;
 
     return this.userRepo.save(user);
+  }
+
+  /* -------------------------- Hierarchy Management -------------------------- */
+
+  async assignParent(userId: string, parentId: string): Promise<void> {
+    if (userId === parentId) {
+      throw new BadRequestException('User cannot be parent of themselves');
+    }
+
+    const [user, parent] = await Promise.all([
+      this.userRepo.findOne({
+        where: { id: userId },
+        relations: ['parent'],
+      }),
+      this.userRepo.findOne({
+        where: { id: parentId },
+        relations: ['parent'],
+      }),
+    ]);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!parent) {
+      throw new NotFoundException('Parent user not found');
+    }
+
+    // Prevent circular hierarchy
+    let current: User | null = parent;
+
+    while (current) {
+      if (current.id === userId) {
+        throw new BadRequestException('Circular hierarchy detected');
+      }
+
+      current = await this.userRepo.findOne({
+        where: { id: current?.parent?.id ?? '' },
+        relations: ['parent'],
+      });
+    }
+
+    user.parent = parent;
+
+    await this.userRepo.save(user);
+  }
+
+  /* -------------------------------------------------------------------------- */
+
+  async removeParent(userId: string): Promise<void> {
+    const user = await this.userRepo.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.parent = null;
+
+    await this.userRepo.save(user);
+  }
+
+  /* -------------------------------------------------------------------------- */
+
+  async getChildren(parentId: string): Promise<User[]> {
+    const parent = await this.userRepo.findOneBy({
+      id: parentId,
+    });
+
+    if (!parent) {
+      throw new NotFoundException('Parent user not found');
+    }
+
+    const children = await this.userRepo.find({
+      where: {
+        parent: { id: parentId },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return children;
   }
 }

@@ -7,9 +7,12 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { Wallet } from 'src/wallet/entities/wallet.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -46,7 +49,8 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  @ApiPropertyOptional({ description: 'Hashed password' })
+  @Exclude()
+  @ApiHideProperty()
   @Column({
     type: 'varchar',
     length: 255,
@@ -54,6 +58,7 @@ export class User {
   })
   passwordHash: string | null;
 
+  @ApiHideProperty()
   @ManyToOne(() => Profile, (profile) => profile.user, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -61,12 +66,18 @@ export class User {
   @JoinColumn({ name: 'profile_id' })
   profile: Profile | null;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ApiHideProperty()
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'parent_id' })
-  parent: User;
+  parent: User | null;
 
+  @ApiHideProperty()
   @OneToMany(() => User, (user) => user.parent)
   children: User[];
+
+  @ApiHideProperty()
+  @OneToOne(() => Wallet, (wallet) => wallet.user)
+  wallet: Wallet;
 
   @CreateDateColumn()
   createdAt: Date;
