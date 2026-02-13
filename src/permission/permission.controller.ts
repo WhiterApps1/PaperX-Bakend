@@ -57,8 +57,8 @@ export class PermissionController {
   })
   @ApiOkResponse({ type: PermissionResponseDto })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  findOne(@Param('id') id: number) {
-    return this.permissionService.findOne(Number(id));
+  findOne(@Param('id') id: string) {
+    return this.permissionService.findOne(id);
   }
 
   /* ------------------------------- Update ------------------------------- */
@@ -70,8 +70,8 @@ export class PermissionController {
   })
   @ApiOkResponse({ type: PermissionResponseDto })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  update(@Param('id') id: number, @Body() dto: UpdatePermissionDto) {
-    return this.permissionService.update(Number(id), dto);
+  update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
+    return this.permissionService.update(id, dto);
   }
 
   /* ------------------------------- Delete ------------------------------- */
@@ -83,7 +83,7 @@ export class PermissionController {
   })
   @ApiOkResponse({ description: 'Permission deleted successfully' })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  remove(@Param('id') id: number) {
-    return this.permissionService.remove(Number(id));
+  remove(@Param('id') id: string) {
+    return this.permissionService.remove(id);
   }
 }

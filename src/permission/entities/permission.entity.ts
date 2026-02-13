@@ -29,24 +29,52 @@ export enum PermissionResource {
 @Entity('permissions')
 @Unique(['action', 'resource'])
 export class Permission {
-  @ApiProperty({ example: 1 })
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ApiProperty({
+    example: 'b7e9c8a2-4d2a-4f90-9b1e-3c12e8a45f91',
+    description: 'Unique identifier for the permission.',
+  })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ApiProperty({ enum: PermissionAction })
-  @Column({ type: 'enum', enum: PermissionAction })
+  @ApiProperty({
+    enum: PermissionAction,
+    example: PermissionAction.READ,
+    description: 'Action that can be performed on a resource.',
+  })
+  @Column({
+    type: 'enum',
+    enum: PermissionAction,
+  })
   action: PermissionAction;
 
-  @ApiProperty({ enum: PermissionResource })
-  @Column({ type: 'enum', enum: PermissionResource })
+  @ApiProperty({
+    enum: PermissionResource,
+    example: PermissionResource.PORTFOLIO,
+    description: 'Target resource on which the action is applied.',
+  })
+  @Column({
+    type: 'enum',
+    enum: PermissionResource,
+  })
   resource: PermissionResource;
 
   @ApiProperty({
     example: 'read:portfolio',
+    description:
+      'Permission key in "action:resource" format, used for access control and policy checks.',
+    minLength: 3,
+    maxLength: 100,
   })
-  @Column()
+  @Column({
+    unique: true,
+    length: 100,
+  })
   key: string;
 
+  @ApiProperty({
+    description: 'Profiles (roles) that are associated with this permission.',
+    required: false,
+  })
   @ManyToMany(() => Profile, (profile) => profile.permissions)
   profiles: Profile[];
 }

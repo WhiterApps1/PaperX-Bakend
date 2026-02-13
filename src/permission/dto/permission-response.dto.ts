@@ -5,8 +5,8 @@ import {
 } from '../entities/permission.entity';
 
 export class PermissionResponseDto {
-  @ApiProperty({ example: 1 })
-  id: number;
+  @ApiProperty({ example: 'b7e9c8a2-4d2a-4f90-9b1e-3c12e8a45f91' })
+  id: string;
 
   @ApiProperty({ enum: PermissionAction })
   action: PermissionAction;

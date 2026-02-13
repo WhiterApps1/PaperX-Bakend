@@ -17,6 +17,7 @@ import { TradingService } from './trading.service';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { FirebaseAuthGuard } from 'src/firebase_auth/firebase.auth.guard';
 import { FirebaseAuthService } from 'src/firebase_auth/firebase_auth.service';
+import { AdminPlaceOrderDto } from './dto/admin-place-order.dto';
 
 @ApiTags('Trading')
 @ApiBearerAuth('bearerAuth')
@@ -34,6 +35,16 @@ export class TradingController {
     const user = await this.firebaseAuthService.decodeTokenFromRequest(req);
 
     return this.tradingService.placeOrder(user.email!, dto);
+  }
+
+  @Post('admin/place')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Admin trade on behalf of client' })
+  async adminPlace(@Req() req, @Body() dto: AdminPlaceOrderDto) {
+    const user = await this.firebaseAuthService.decodeTokenFromRequest(req);
+
+    return this.tradingService.adminPlaceOrder(user.email!, dto);
   }
 
   @UseGuards(FirebaseAuthGuard)

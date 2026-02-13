@@ -16,9 +16,11 @@ import { FirebaseUserDto } from './dto/create-firebase-user.dto';
 export class FirebaseAuthController {
   constructor(private readonly firebaseAuthService: FirebaseAuthService) {}
 
-  @Post('/create-user')
+  @Post('/user')
   @ApiOperation({
     summary: 'Create a Firebase user using email and password',
+    description:
+      'Creates a new Firebase user with the provided email and password. The email will be marked as verified.',
   })
   @ApiBody({ type: FirebaseUserDto })
   @ApiResponse({
@@ -33,9 +35,10 @@ export class FirebaseAuthController {
     return this.firebaseAuthService.createUser(dto.email, dto.password);
   }
 
-  @Post('/set-roles/:uid')
+  @Post('/user/roles/:uid')
   @ApiOperation({
     summary: 'Assigns multiple roles to a single Firebase user ID',
+    description: 'Assigns multiple roles to a Firebase user identified by UID.',
   })
   @ApiBody({
     type: SetRolesDto,

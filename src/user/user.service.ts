@@ -102,7 +102,7 @@ export class UserService {
     });
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: string): Promise<User> {
     const user = await this.userRepo.findOne({
       where: { id },
       relations: ['profile', 'profile.permissions'],
@@ -117,7 +117,7 @@ export class UserService {
 
   /* ------------------------------- Update ------------------------------- */
 
-  async update(id: number, dto: UpdateUserDto): Promise<User> {
+  async update(id: string, dto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
     if (dto.email) {
@@ -165,14 +165,16 @@ export class UserService {
 
   /* ------------------------------- Delete ------------------------------- */
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<{ succss: boolean; message: string }> {
     const user = await this.findOne(id);
     await this.userRepo.remove(user);
+
+    return { succss: true, message: 'User removed successfully' };
   }
 
   /* ---------------------------- Status Update --------------------------- */
 
-  async setActive(id: number, status: boolean): Promise<User> {
+  async setActive(id: string, status: boolean): Promise<User> {
     const user = await this.findOne(id);
 
     user.isActive = status;

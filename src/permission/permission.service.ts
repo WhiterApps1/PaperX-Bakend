@@ -42,7 +42,7 @@ export class PermissionService {
     return this.permissionRepo.find();
   }
 
-  async findOne(id: number): Promise<Permission> {
+  async findOne(id: string): Promise<Permission> {
     const permission = await this.permissionRepo.findOne({ where: { id } });
 
     if (!permission) {
@@ -52,7 +52,7 @@ export class PermissionService {
     return permission;
   }
 
-  async update(id: number, dto: UpdatePermissionDto): Promise<Permission> {
+  async update(id: string, dto: UpdatePermissionDto): Promise<Permission> {
     const permission = await this.findOne(id);
 
     if (dto.action || dto.resource) {
@@ -64,7 +64,7 @@ export class PermissionService {
     return this.permissionRepo.save(permission);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const permission = await this.permissionRepo.findOne({
       where: { id },
       relations: ['profiles'],

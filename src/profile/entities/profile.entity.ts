@@ -13,9 +13,9 @@ import {
 
 @Entity()
 export class Profile {
-  @PrimaryGeneratedColumn()
-  @ApiProperty({ example: 1, description: 'Profile ID' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  @ApiProperty({ example: 'profile-uuid-12345', description: 'Profile ID' })
+  id: string;
 
   @Column({ length: 200 })
   @ApiProperty({ example: 'John Doe', description: 'Profile name' })

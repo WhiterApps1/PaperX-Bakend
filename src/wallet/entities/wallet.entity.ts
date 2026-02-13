@@ -1,44 +1,43 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-// wallet.entity.ts
 @Entity()
 export class Wallet {
+  @ApiProperty({
+    example: '9a7b6c5d-4e3f-4a2b-8c1d-5e6f7a8b9c0d',
+    description: 'Unique identifier for the wallet (UUID)',
+  })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({
+    example: 'USR-123456',
+    description: 'User identifier who owns this wallet',
+  })
   @Column()
   userId: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({
+    example: '10000.00',
+    description: 'Available wallet balance (stored as decimal for accuracy)',
+  })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   balance: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @ApiProperty({
+    example: '2500.00',
+    description: 'Locked funds reserved for open positions or pending orders',
+  })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   locked: number;
-}
-
-// credit-transaction.entity.ts
-@Entity()
-export class CreditTransaction {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  senderId: string;
-
-  @Column()
-  receiverId: string;
-
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  amount: number;
-
-  @Column()
-  type: 'PUSH' | 'RECLAIM';
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

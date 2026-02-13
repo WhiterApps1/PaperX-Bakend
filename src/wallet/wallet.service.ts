@@ -1,7 +1,15 @@
-import { Injectable, BadRequestException, ConflictException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { DataSource, Repository } from "typeorm";
-import { Wallet, CreditTransaction } from "./entities/wallet.entity";
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Wallet } from './entities/wallet.entity';
+import {
+  CreditTransaction,
+  CreditTransactionType,
+} from './entities/credit-transaction.entity';
 
 @Injectable()
 export class WalletService {
@@ -11,10 +19,10 @@ export class WalletService {
   ) {}
 
   async transferCredits(
-    senderId: string, 
-    receiverId: string, 
-    amount: number, 
-    type: 'PUSH' | 'RECLAIM'
+    senderId: string,
+    receiverId: string,
+    amount: number,
+    type: CreditTransactionType,
   ) {
     if (amount <= 0) throw new BadRequestException('Amount must be positive');
 
@@ -30,9 +38,9 @@ export class WalletService {
       }
 
       // 2. Find or create receiver wallet
-      let receiverWallet = await manager.findOne(Wallet, { 
+      const receiverWallet = await manager.findOne(Wallet, {
         where: { userId: receiverId },
-        lock: { mode: 'pessimistic_write' } 
+        lock: { mode: 'pessimistic_write' },
       });
 
       // 3. Perform the arithmetic
@@ -42,32 +50,32 @@ export class WalletService {
       // 4. Save updates and log transaction
       await manager.save(senderWallet);
       await manager.save(receiverWallet);
-      
+
       const log = manager.create(CreditTransaction, {
         senderId,
         receiverId,
         amount,
         type,
       });
-      
+
       return await manager.save(log);
     });
     // Note: If any error occurs inside this block, TypeORM automatically rolls back.
   }
 
   async createWallet(userId: string, initialBalance: number) {
-  // Check if wallet exists to prevent duplicate account creation
-  const existingWallet = await this.walletRepo.findOne({ where: { userId } });
-  
-  if (existingWallet) {
-    throw new ConflictException('A wallet already exists for this user');
+    // Check if wallet exists to prevent duplicate account creation
+    const existingWallet = await this.walletRepo.findOne({ where: { userId } });
+
+    if (existingWallet) {
+      throw new ConflictException('A wallet already exists for this user');
+    }
+
+    const newWallet = this.walletRepo.create({
+      userId,
+      balance: initialBalance,
+    });
+
+    return await this.walletRepo.save(newWallet);
   }
-
-  const newWallet = this.walletRepo.create({
-    userId,
-    balance: initialBalance,
-  });
-
-  return await this.walletRepo.save(newWallet);
-}
 }
