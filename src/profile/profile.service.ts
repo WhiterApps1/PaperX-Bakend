@@ -37,7 +37,7 @@ export class ProfileService {
 
     const profile = this.profileRepo.create({
       name: dto.name,
-      role: dto.role,
+      roles: dto.roles,
       permissions,
     });
 
@@ -86,8 +86,8 @@ export class ProfileService {
       profile.name = dto.name;
     }
 
-    if (dto.role !== undefined) {
-      profile.role = dto.role;
+    if (dto.roles !== undefined) {
+      profile.roles = dto.roles;
     }
 
     return this.profileRepo.save(profile);

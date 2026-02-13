@@ -6,15 +6,15 @@ import { CreditTransferDto } from './dto/credit-transfer.dto';
 import { CreditTransactionType } from './entities/credit-transaction.entity';
 
 @ApiTags('Internal Credit Management')
-@Controller('internal/credits')
+@Controller('internal')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
-  @Post('initialize-parent')
+  @Post('wallets')
   @ApiOperation({
-    summary: 'Initialize Parent Wallet',
+    summary: 'Initialize Wallet',
     description:
-      'Creates a new wallet for a parent user with a specific starting balance.',
+      'Creates a new wallet for a user with a specific starting balance.',
   })
   @ApiResponse({ status: 201, description: 'Wallet created successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid initial balance.' })
@@ -29,7 +29,7 @@ export class WalletController {
     return this.walletService.createWallet(dto.userId, dto.initialBalance);
   }
 
-  @Post('push')
+  @Post('transfers/push')
   @ApiOperation({
     summary: 'Push credits to a child',
     description:
@@ -56,7 +56,7 @@ export class WalletController {
     );
   }
 
-  @Post('reclaim')
+  @Post('transfers/reclaim')
   @ApiOperation({
     summary: 'Reclaim credits from a child',
     description:

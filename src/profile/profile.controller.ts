@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -57,7 +58,7 @@ export class ProfileController {
   })
   @ApiOkResponse({ type: Profile })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.profileService.findOne(id);
   }
 
@@ -70,7 +71,10 @@ export class ProfileController {
   })
   @ApiOkResponse({ type: Profile })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  update(@Param('id') id: string, @Body() dto: UpdateProfileDto) {
+  update(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
     return this.profileService.update(id, dto);
   }
 
@@ -84,7 +88,7 @@ export class ProfileController {
   @ApiOkResponse({ description: 'Profile deleted successfully' })
   @ApiBadRequestResponse({ description: 'Invalid profile ID' })
   @ApiNotFoundResponse({ description: 'Profile not found' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.profileService.remove(id);
   }
 }

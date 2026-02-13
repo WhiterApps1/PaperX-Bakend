@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { FirebaseAuthService } from 'src/firebase_auth/firebase_auth.service';
+import { ROLE_RANK } from 'src/firebase_auth/roles';
 
 @Injectable()
 export class UserService {
@@ -71,10 +73,10 @@ export class UserService {
     const newUser = await this.userRepo.save(user);
 
     // Assign Firebase Roles
-    if (firebaseUser && newUser.profile?.role?.length) {
+    if (firebaseUser && newUser.profile?.roles?.length) {
       await this.firebaseAuthService.setRoles(
         firebaseUser.uid,
-        newUser.profile.role,
+        newUser.profile.roles,
       );
     }
 
@@ -98,7 +100,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return this.userRepo.find({
-      relations: ['profile', 'profile.permissions'],
+      relations: ['profile', 'profile.permissions', 'wallet'],
     });
   }
 
@@ -192,11 +194,11 @@ export class UserService {
     const [user, parent] = await Promise.all([
       this.userRepo.findOne({
         where: { id: userId },
-        relations: ['parent'],
+        relations: ['parent', 'profile'],
       }),
       this.userRepo.findOne({
         where: { id: parentId },
-        relations: ['parent'],
+        relations: ['parent', 'profile'],
       }),
     ]);
 
@@ -208,16 +210,41 @@ export class UserService {
       throw new NotFoundException('Parent user not found');
     }
 
+    const userRoles = user.profile?.roles ?? [];
+    const parentRoles = parent.profile?.roles ?? [];
+
+    if (!userRoles.length || !parentRoles.length) {
+      throw new ForbiddenException('Role information missing');
+    }
+
+    // Highest role wins
+    const userMaxRank = Math.max(...userRoles.map((r) => ROLE_RANK[r]));
+    const parentMaxRank = Math.max(...parentRoles.map((r) => ROLE_RANK[r]));
+
+    // Parent must be higher
+    if (parentMaxRank <= userMaxRank) {
+      throw new ForbiddenException(
+        'Parent user must have a higher role than the child user',
+      );
+    }
+
+    // Parent must be active
+    if (!parent.isActive) {
+      throw new BadRequestException('Inactive user cannot be parent');
+    }
+
     // Prevent circular hierarchy
     let current: User | null = parent;
 
-    while (current) {
-      if (current.id === userId) {
+    while (current && current.parent) {
+      const parentId = current.parent.id;
+
+      if (parentId === userId) {
         throw new BadRequestException('Circular hierarchy detected');
       }
 
       current = await this.userRepo.findOne({
-        where: { id: current?.parent?.id ?? '' },
+        where: { id: parentId },
         relations: ['parent'],
       });
     }

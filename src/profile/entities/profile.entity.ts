@@ -1,5 +1,5 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Roles } from 'src/firebase_auth/roles.enum';
+import { Roles } from 'src/firebase_auth/roles';
 import { Permission } from 'src/permission/entities/permission.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -33,7 +33,7 @@ export class Profile {
     isArray: true,
     example: [Roles.ADMIN, Roles.USER],
   })
-  role: Roles[];
+  roles: Roles[];
 
   @ApiHideProperty()
   @ManyToMany(() => Permission, (permission) => permission.profiles)

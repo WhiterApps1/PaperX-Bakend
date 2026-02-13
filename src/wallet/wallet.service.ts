@@ -61,9 +61,13 @@ export class WalletService {
         lock: { mode: 'pessimistic_write' },
       });
 
+      if (!receiverWallet || !receiverWallet.balance) {
+        throw new BadRequestException('Receiver wallet not found');
+      }
+
       // 3. Perform the arithmetic
       senderWallet.balance = Number(senderWallet.balance) - amount;
-      receiverWallet!.balance = Number(receiverWallet!.balance) + amount;
+      receiverWallet.balance = Number(receiverWallet.balance) + amount;
 
       // 4. Save updates and log transaction
       await manager.save(senderWallet);

@@ -13,6 +13,8 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
 import { Exclude } from 'class-transformer';
+import { Order } from 'src/trading/entities/order.entity';
+import { Position } from 'src/trading/entities/position.entity';
 
 @Entity('users')
 export class User {
@@ -78,6 +80,13 @@ export class User {
   @ApiHideProperty()
   @OneToOne(() => Wallet, (wallet) => wallet.user)
   wallet: Wallet;
+
+  @ApiHideProperty()
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
+
+  @OneToMany(() => Position, (position) => position.user)
+  positions: Position[];
 
   @CreateDateColumn()
   createdAt: Date;

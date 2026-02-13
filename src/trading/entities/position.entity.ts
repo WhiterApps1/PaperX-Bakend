@@ -1,9 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -15,12 +18,13 @@ export class Position {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: 'USR-9f8e7d6c5b4a',
-    description: 'User identifier who owns this position',
+  @ApiHideProperty()
+  @ManyToOne(() => User, (user) => user.positions, {
+    nullable: false,
+    onDelete: 'CASCADE',
   })
-  @Column()
-  userId: string;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @ApiProperty({
     example: 'BTCUSDT',

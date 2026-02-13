@@ -1,9 +1,12 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 
 export enum OrderSide {
@@ -26,12 +29,13 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: 'USR-9f8e7d6c5b4a',
-    description: 'User identifier who placed this order',
+  @ApiHideProperty()
+  @ManyToOne(() => User, (user) => user.orders, {
+    nullable: false,
+    onDelete: 'CASCADE',
   })
-  @Column()
-  userId: string;
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @ApiProperty({
     example: 'ETHUSDT',
@@ -77,14 +81,13 @@ export class Order {
   @Column({ type: 'enum', enum: OrderStatus })
   status: OrderStatus;
 
-  @ApiPropertyOptional({
-    example: 'ADM-123456',
-    description:
-      'Administrator ID if the order was placed on behalf of a user (masquerade mode)',
+  @ApiHideProperty()
+  @ManyToOne(() => User, {
     nullable: true,
+    onDelete: 'SET NULL',
   })
-  @Column({ nullable: true })
-  initiatedBy: string | null;
+  @JoinColumn({ name: 'initiated_by_id' })
+  initiatedBy: User | null;
 
   @ApiProperty({
     example: '2026-02-12T15:10:30.000Z',

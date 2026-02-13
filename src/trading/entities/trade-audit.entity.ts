@@ -1,10 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Order } from './order.entity';
+import { User } from 'src/user/entities/user.entity';
 
 export enum AuditType {
   CLIENT = 'CLIENT',
@@ -20,26 +24,29 @@ export class TradeAudit {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: 'ORD-20260212-0001',
-    description: 'Associated order identifier',
+  @ApiHideProperty()
+  @ManyToOne(() => Order, {
+    nullable: false,
+    onDelete: 'CASCADE',
   })
-  @Column()
-  orderId: string;
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
 
-  @ApiProperty({
-    example: 'USR-9f8e7d6c5b4a',
-    description: 'Client/User identifier related to this trade',
+  @ApiHideProperty()
+  @ManyToOne(() => User, {
+    nullable: false,
+    onDelete: 'CASCADE',
   })
-  @Column()
-  clientId: string;
+  @JoinColumn({ name: 'client_id' })
+  client: User;
 
-  @ApiProperty({
-    example: 'ADM-123456',
-    description: 'Administrator/User ID who initiated this action',
+  @ApiHideProperty()
+  @ManyToOne(() => User, {
+    nullable: true,
+    onDelete: 'SET NULL',
   })
-  @Column()
-  initiatedBy: string;
+  @JoinColumn({ name: 'initiated_by_id' })
+  initiatedBy: User | null;
 
   @ApiProperty({
     enum: AuditType,

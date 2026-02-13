@@ -1,8 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsNumber, Min, Max } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsEnum,
+  IsNumber,
+  Min,
+  Max,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 import { OrderSide } from '../entities/order.entity';
 
-export class PlaceOrderDto {
+export class CreateOrderDto {
   @ApiProperty({
     example: 'AAPL',
     description: 'Trading symbol / instrument code',
@@ -13,14 +21,12 @@ export class PlaceOrderDto {
   @ApiProperty({
     enum: OrderSide,
     example: OrderSide.BUY,
-    description: 'Order side (BUY or SELL)',
   })
   @IsEnum(OrderSide)
   side: OrderSide;
 
   @ApiProperty({
     example: 180.5,
-    description: 'Limit price per unit (must be greater than 0)',
     minimum: 0.01,
   })
   @IsNumber()
@@ -29,7 +35,6 @@ export class PlaceOrderDto {
 
   @ApiProperty({
     example: 10,
-    description: 'Number of units to buy or sell (must be at least 1)',
     minimum: 1,
   })
   @IsNumber()
@@ -38,7 +43,6 @@ export class PlaceOrderDto {
 
   @ApiProperty({
     example: 5,
-    description: 'Leverage / exposure multiplier for this order',
     minimum: 1,
     maximum: 100,
   })
@@ -46,4 +50,15 @@ export class PlaceOrderDto {
   @Min(1)
   @Max(100)
   exposure: number;
+
+  // ADMIN ONLY FIELD
+
+  @ApiPropertyOptional({
+    example: '8f3c2a91-4d5e-4b7f-9a12-6c3e5d7f8a90',
+    description: 'Client ID (admins only)',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID()
+  clientId?: string;
 }

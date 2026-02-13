@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { getAuth, Auth } from 'firebase-admin/auth';
 import { FirebaseProvider } from '@alpha018/nestjs-firebase-auth';
-import { Roles } from './roles.enum';
+import { Roles } from './roles';
 import axios from 'axios';
 import 'dotenv/config';
 

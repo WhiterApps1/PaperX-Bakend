@@ -3,21 +3,16 @@ import {
   Controller,
   Delete,
   Param,
+  ParseUUIDPipe,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TradingService } from './trading.service';
-import { PlaceOrderDto } from './dto/place-order.dto';
-import { FirebaseAuthGuard } from 'src/firebase_auth/firebase.auth.guard';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { FirebaseAuthService } from 'src/firebase_auth/firebase_auth.service';
-import { AdminPlaceOrderDto } from './dto/admin-place-order.dto';
+import { FirebaseGuard } from '@alpha018/nestjs-firebase-auth';
 
 @ApiTags('Trading')
 @ApiBearerAuth('bearerAuth')
@@ -28,29 +23,30 @@ export class TradingController {
     private readonly firebaseAuthService: FirebaseAuthService,
   ) {}
 
-  @UseGuards(FirebaseAuthGuard)
-  @Post('place')
-  @ApiCreatedResponse({ description: 'Order placed' })
-  async place(@Req() req, @Body() dto: PlaceOrderDto) {
+  @UseGuards(FirebaseGuard)
+  @Post('orders')
+  @ApiOperation({
+    summary: 'Place a new trading order',
+    description:
+      'Creates a new trading order for the authenticated user. The user is identified from the Firebase JWT token.',
+  })
+  async createOrder(@Req() req, @Body() dto: CreateOrderDto) {
     const user = await this.firebaseAuthService.decodeTokenFromRequest(req);
 
-    return this.tradingService.placeOrder(user.email!, dto);
+    return this.tradingService.createOrder(user.email!, dto);
   }
 
-  @Post('admin/place')
-  @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin trade on behalf of client' })
-  async adminPlace(@Req() req, @Body() dto: AdminPlaceOrderDto) {
-    const user = await this.firebaseAuthService.decodeTokenFromRequest(req);
-
-    return this.tradingService.adminPlaceOrder(user.email!, dto);
-  }
-
-  @UseGuards(FirebaseAuthGuard)
-  @Delete('position/:id')
-  @ApiOperation({ summary: 'Close position' })
-  async closePosition(@Param('id') id: string, @Req() req) {
+  @UseGuards(FirebaseGuard)
+  @Delete('positions/:id')
+  @ApiOperation({
+    summary: 'Close an open trading position',
+    description:
+      'Closes an existing open position for the authenticated user. The position must belong to the logged-in user.',
+  })
+  async closePosition(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req,
+  ) {
     const user = await this.firebaseAuthService.decodeTokenFromRequest(req);
 
     return this.tradingService.closePosition(id, user.email!);

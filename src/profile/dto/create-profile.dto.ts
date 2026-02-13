@@ -4,11 +4,10 @@ import {
   IsOptional,
   IsArray,
   IsEnum,
-  IsNumber,
   MaxLength,
   ArrayNotEmpty,
 } from 'class-validator';
-import { Roles } from 'src/firebase_auth/roles.enum';
+import { Roles } from 'src/firebase_auth/roles';
 
 export class CreateProfileDto {
   @ApiProperty({
@@ -29,16 +28,16 @@ export class CreateProfileDto {
   @IsOptional()
   @IsArray()
   @IsEnum(Roles, { each: true })
-  role?: Roles[];
+  roles?: Roles[];
 
   @ApiPropertyOptional({
-    example: [1, 2, 3],
+    example: ['1', '2', '3'],
     description: 'List of permission IDs associated with this profile',
-    type: [Number],
+    type: [String],
   })
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  permissionIds?: number[];
+  @IsString({ each: true })
+  permissionIds?: string[];
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -59,7 +60,7 @@ export class UserController {
   })
   @ApiOkResponse({ type: User })
   @ApiNotFoundResponse({ description: 'User not found' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.userService.findOne(id);
   }
 
@@ -72,7 +73,10 @@ export class UserController {
   })
   @ApiOkResponse({ type: User })
   @ApiNotFoundResponse({ description: 'User not found' })
-  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  update(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
     return this.userService.update(id, dto);
   }
 
@@ -85,7 +89,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'User deleted successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.userService.remove(id);
   }
 
@@ -99,7 +103,10 @@ export class UserController {
   })
   @ApiOkResponse({ type: User })
   @ApiNotFoundResponse({ description: 'User not found' })
-  setActive(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
+  setActive(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateStatusDto,
+  ) {
     return this.userService.setActive(id, dto.status);
   }
 
@@ -113,7 +120,10 @@ export class UserController {
   @ApiOkResponse({
     description: 'Parent assigned successfully',
   })
-  async assignParent(@Param('id') id: string, @Body() dto: AssignParentDto) {
+  async assignParent(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: AssignParentDto,
+  ) {
     await this.userService.assignParent(id, dto.parentId);
 
     return {
@@ -132,7 +142,9 @@ export class UserController {
   @ApiOkResponse({
     description: 'Parent removed successfully',
   })
-  async removeParent(@Param('id') id: string) {
+  async removeParent(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     await this.userService.removeParent(id);
 
     return {
@@ -151,7 +163,9 @@ export class UserController {
   @ApiOkResponse({
     type: [User],
   })
-  async getChildren(@Param('id') id: string) {
+  async getChildren(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     return this.userService.getChildren(id);
   }
 }

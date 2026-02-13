@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -57,7 +58,7 @@ export class PermissionController {
   })
   @ApiOkResponse({ type: Permission })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.permissionService.findOne(id);
   }
 
@@ -70,7 +71,10 @@ export class PermissionController {
   })
   @ApiOkResponse({ type: Permission })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
+  update(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdatePermissionDto,
+  ) {
     return this.permissionService.update(id, dto);
   }
 
@@ -83,7 +87,7 @@ export class PermissionController {
   })
   @ApiOkResponse({ description: 'Permission deleted successfully' })
   @ApiNotFoundResponse({ description: 'Permission not found' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.permissionService.remove(id);
   }
 }

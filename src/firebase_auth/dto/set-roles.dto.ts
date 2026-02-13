@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, ArrayNotEmpty } from 'class-validator';
-import { Roles } from '../roles.enum';
+import { Roles } from '../roles';
 
 export class SetRolesDto {
   @ApiProperty({

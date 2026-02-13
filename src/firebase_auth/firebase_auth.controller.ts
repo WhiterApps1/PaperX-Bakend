@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { FirebaseAuthService } from './firebase_auth.service';
 import {
   ApiBearerAuth,
@@ -35,7 +35,7 @@ export class FirebaseAuthController {
     return this.firebaseAuthService.createUser(dto.email, dto.password);
   }
 
-  @Post('/user/roles/:uid')
+  @Post('user/roles/:uid')
   @ApiOperation({
     summary: 'Assigns multiple roles to a single Firebase user ID',
     description: 'Assigns multiple roles to a Firebase user identified by UID.',
@@ -48,12 +48,15 @@ export class FirebaseAuthController {
     status: 400,
     description: 'Invalid UID, roles, or Firebase error.',
   })
-  @Post('/set-roles/:uid')
-  async setMultipleRoles(@Param('uid') uid: string, @Body() body: SetRolesDto) {
+  @Post('set-roles/:uid')
+  async setMultipleRoles(
+    @Param('uid', new ParseUUIDPipe({ version: '4' })) uid: string,
+    @Body() body: SetRolesDto,
+  ) {
     return this.firebaseAuthService.setRoles(uid, body.roles);
   }
 
-  @Post('login')
+  @Post('user/login')
   @ApiOperation({
     summary: 'Login with email and password',
     description:
