@@ -13,8 +13,9 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Profile } from 'src/profile/entities/profile.entity';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
 import { Exclude } from 'class-transformer';
-import { Order } from 'src/trading/entities/order.entity';
-import { Position } from 'src/trading/entities/position.entity';
+import { Order } from 'src/orders/entities/order.entity';
+import { Position } from 'src/positions/entities/position.entity';
+import { SquareOff } from 'src/square-off/entities/square-off.entity';
 
 @Entity('users')
 export class User {
@@ -87,6 +88,10 @@ export class User {
 
   @OneToMany(() => Position, (position) => position.user)
   positions: Position[];
+
+  @ApiHideProperty()
+  @OneToMany(() => SquareOff, (squareOff) => squareOff.client)
+  squareOffs: SquareOff[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,64 +1,55 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
   IsEnum,
   IsNumber,
-  Min,
-  Max,
+  IsPositive,
   IsOptional,
-  IsUUID,
+  IsString,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { OrderSide } from '../entities/order.entity';
 
 export class CreateOrderDto {
   @ApiProperty({
+    description: 'Trading symbol (stock, crypto, or instrument code)',
     example: 'AAPL',
-    description: 'Trading symbol / instrument code',
   })
   @IsString()
   symbol: string;
 
   @ApiProperty({
+    description: 'Order side / type',
     enum: OrderSide,
     example: OrderSide.BUY,
   })
   @IsEnum(OrderSide)
-  side: OrderSide;
+  orderType: OrderSide;
 
   @ApiProperty({
-    example: 180.5,
-    minimum: 0.01,
-  })
-  @IsNumber()
-  @Min(0.01)
-  price: number;
-
-  @ApiProperty({
+    description: 'Number of units to trade',
     example: 10,
     minimum: 1,
   })
+  @Type(() => Number)
   @IsNumber()
-  @Min(1)
+  @IsPositive()
   quantity: number;
 
   @ApiProperty({
-    example: 5,
-    minimum: 1,
-    maximum: 100,
+    description: 'Limit/market price per unit',
+    example: 152.75,
+    minimum: 0,
   })
+  @Type(() => Number)
   @IsNumber()
-  @Min(1)
-  @Max(100)
-  exposure: number;
-
-  // ADMIN ONLY FIELD
+  @IsPositive()
+  price: number;
 
   @ApiPropertyOptional({
-    example: '8f3c2a91-4d5e-4b7f-9a12-6c3e5d7f8a90',
-    description: 'Client ID (admins only)',
-    format: 'uuid',
+    description: 'Client identifier (for admin / trade-on-behalf orders)',
+    example: 'client@example.com',
   })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   clientId?: string;
 }

@@ -17,6 +17,7 @@ export enum OrderSide {
 export enum OrderStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
+  CANCELLED = 'CANCELLED',
   REJECTED = 'REJECTED',
 }
 

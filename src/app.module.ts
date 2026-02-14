@@ -11,7 +11,10 @@ import { WalletModule } from './wallet/wallet.module';
 import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
 import { ProfileModule } from './profile/profile.module';
-import { TradingModule } from './trading/trading.module';
+import { OrdersModule } from './orders/orders.module';
+import { PositionsModule } from './positions/positions.module';
+import { PortfolioModule } from './portfolio/portfolio.module';
+import { SquareOffModule } from './square-off/square-off.module';
 
 @Module({
   imports: [
@@ -65,7 +68,10 @@ import { TradingModule } from './trading/trading.module';
     UserModule,
     PermissionModule,
     ProfileModule,
-    TradingModule,
+    OrdersModule,
+    PositionsModule,
+    PortfolioModule,
+    SquareOffModule,
   ],
   controllers: [AppController],
   providers: [AppService],
